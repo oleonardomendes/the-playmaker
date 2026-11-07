@@ -1,4 +1,5 @@
 import { Rng } from "../rng";
+import { defaultTactic } from "../match/tactics";
 import type {
   Club,
   Country,
@@ -7,6 +8,7 @@ import type {
   CrestShape,
   Foot,
   Player,
+  PlayerSeason,
   Position,
   Rival,
   StateInfo,
@@ -83,6 +85,10 @@ export function squadPositions(size: number): Position[] {
 }
 
 /* ---------- Utilitários ---------- */
+
+export function emptySeason(): PlayerSeason {
+  return { apps: 0, goals: 0, assists: 0, yellow: 0, red: 0, ratingSum: 0 };
+}
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 const between = (rng: Rng, [min, max]: [number, number]) => min + rng.next() * (max - min);
@@ -308,6 +314,8 @@ class WorldBuilder {
       overall,
       potential,
       clubId: ctx.clubId,
+      condition: 100,
+      season: emptySeason(),
     };
     this.players[id] = player;
     return player;
@@ -355,6 +363,7 @@ class WorldBuilder {
       stadium: { name: stadiumName(rng, opts.city, opts.tier, spanish), capacity },
       rivals: [],
       playerIds: [],
+      tactic: defaultTactic(id),
     };
     this.clubs[id] = club;
 
@@ -523,11 +532,16 @@ export function generateWorld(seed: number): World {
   return {
     seed,
     season: FIRST_SEASON,
+    date: `${FIRST_SEASON}-01-10`,
     clubs: b.clubs,
     players: b.players,
     divisions,
     states,
     countries,
+    competitions: {},
+    fixtures: {},
+    schedule: {},
+    history: [],
     rng: b.rng.state(),
   };
 }

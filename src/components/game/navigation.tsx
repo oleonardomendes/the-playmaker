@@ -8,12 +8,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
  * anterior em vez de fechar o jogo.
  */
 
-export type CompetitionTab = "A" | "B" | "C" | "D" | "estaduais" | "exterior";
+export type TournamentTab = "tabela" | "jogos" | "artilharia";
 
 export type Route =
   | { view: "inicio" }
+  | { view: "time" }
+  | { view: "agenda" }
+  | { view: "partida"; fixtureId: string; mode: "pre" | "live" | "sumula" }
+  | { view: "torneios"; compId?: string; tab?: TournamentTab; stage?: number }
   | { view: "clubes"; clubId?: string }
-  | { view: "competicoes"; tab: CompetitionTab; uf?: string; country?: string }
   | { view: "jogadores" }
   | { view: "banco" };
 

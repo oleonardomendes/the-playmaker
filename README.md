@@ -24,7 +24,11 @@ src/
     rng.ts           gerador aleatório determinístico — toda aleatoriedade passa por ele
     types.ts         modelo de dados
     world/           geração do mundo (geografia, nomes, clubes, jogadores, rivalidades)
-    sim/             simulação de partidas
+    match/           motor de partida (engine.ts) e táticas/escalação (tactics.ts)
+    competitions/    montagem das competições, agenda de datas, tabelas e mata-mata
+    season/          ciclo da temporada: avançar, jogar o dia, virar o ano
+    calendar/        datas do jogo
+    sim/             modelo-base de gols (força + mando de campo)
     pack.ts          packs: exportar/importar edições do banco (nomes reais ficam por conta da comunidade)
     engine.worker.ts Web Worker que expõe o motor para a interface
     protocol.ts      contrato de mensagens interface <-> motor
@@ -51,7 +55,7 @@ npm run lint
 | --- | --- |
 | **0. Setup** ✅ | PWA, motor em Web Worker, save local, rota de IA |
 | **1. Mundo** ✅ | 302 clubes BR + 60 sul-americanos, ~9 mil jogadores, rivalidades, packs, interface paisagem |
-| 2. Partida, táticas e calendário | motor em texto, todas as competições |
+| **2. Partida, táticas e calendário** ✅ | motor minuto a minuto, táticas, partida ao vivo, Séries A–D, 27 estaduais, Copa Nacional, 2 continentais, copas do 2º semestre, virada de temporada |
 | 3. Elenco, treino e trajetórias | perfis de carreira, lesões, base, olheiros |
 | 4. Finanças e política | dívida, SAF, votações, eleições |
 | 5. Mercado de jogadores | propostas, contratos, empréstimos |
@@ -71,4 +75,5 @@ npm run lint
 - **Determinismo:** nada de `Math.random()` dentro de `src/engine/`; use `Rng`. O estado do gerador vai no save.
 - **O motor decide, a IA narra:** o LLM nunca cria jogadores, valores ou eventos.
 - **Mudou o formato do save?** Aumente `SCHEMA_VERSION` e escreva a migração em `src/lib/save/migrations.ts`.
-- **Realismo calibrado por testes:** médias de gols, empates e mando de campo são verificadas em `engine.test.ts`.
+- **Realismo calibrado por testes:** gols, empates, mando de campo, cartões e finalizações são verificados em `match.test.ts`; a temporada inteira (sem clube jogando com menos de 3 dias de intervalo) em `season.test.ts`.
+- **Partida ao vivo:** a sua partida roda na tela (mesmo motor, mesma semente) e só vai para o save quando termina; as demais rodam no Worker.

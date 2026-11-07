@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Rng } from "./rng";
-import { simulateQuickMatch, teamStrength } from "./sim/quickMatch";
+import { teamStrength } from "./sim/quickMatch";
 import { generateWorld, makeShortName, squadPositions } from "./world/generate";
 import { STATES } from "./world/geography";
 import { applyPack, exportPack, PackError, parsePack } from "./pack";
@@ -158,36 +158,6 @@ describe("makeShortName", () => {
   });
 });
 
-describe("simulateQuickMatch — calibração", () => {
-  const N = 20000;
-  const rng = new Rng(2027);
-  let goals = 0;
-  let draws = 0;
-  let homeWins = 0;
-  let awayWins = 0;
-  for (let i = 0; i < N; i++) {
-    const r = simulateQuickMatch(rng, "a", "b", 70, 70);
-    goals += r.homeGoals + r.awayGoals;
-    if (r.homeGoals === r.awayGoals) draws++;
-    else if (r.homeGoals > r.awayGoals) homeWins++;
-    else awayWins++;
-  }
-
-  it("tem média de gols parecida com a do futebol brasileiro", () => {
-    expect(goals / N).toBeGreaterThan(2.2);
-    expect(goals / N).toBeLessThan(2.7);
-  });
-
-  it("tem taxa de empates realista", () => {
-    expect(draws / N).toBeGreaterThan(0.22);
-    expect(draws / N).toBeLessThan(0.32);
-  });
-
-  it("dá vantagem ao mandante", () => {
-    expect(homeWins).toBeGreaterThan(awayWins * 1.4);
-  });
-});
-
 describe("packs", () => {
   it("exporta e reimporta o banco sem mudar nada", () => {
     const { world: same, report } = applyPack(world, parsePack(exportPack(world)));
@@ -247,6 +217,26 @@ describe("migrateSave", () => {
     const save = migrateSave({ schemaVersion: 1, id: "x", world: { seed: 55, clubs: {} } });
     expect(save.world.seed).toBe(55);
     expect(save.world.divisions.A).toHaveLength(20);
+    expect(Object.keys(save.world.competitions).length).toBeGreaterThan(50);
+  });
+
+  it("leva o save da fase 1 para a fase 2 mantendo as edições de pack", () => {
+    const old = JSON.parse(JSON.stringify(generateWorld(8)));
+    const first = Object.keys(old.clubs)[0];
+    old.clubs[first].name = "Editado no pack";
+    delete old.competitions;
+    delete old.fixtures;
+    delete old.schedule;
+    delete old.date;
+    for (const c of Object.values(old.clubs) as Record<string, unknown>[]) delete c.tactic;
+    for (const p of Object.values(old.players) as Record<string, unknown>[]) {
+      delete p.condition;
+      delete p.season;
+    }
+    const save = migrateSave({ schemaVersion: 2, id: "x", world: old });
+    expect(save.world.clubs[first].name).toBe("Editado no pack");
+    expect(save.world.clubs[first].tactic.formation).toBeDefined();
+    expect(Object.keys(save.world.fixtures).length).toBeGreaterThan(2500);
   });
 
   it("recusa saves de uma versão mais nova do jogo", () => {

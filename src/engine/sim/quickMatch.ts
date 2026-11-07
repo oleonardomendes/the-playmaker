@@ -1,9 +1,17 @@
 import type { Rng } from "../rng";
-import type { Club, MatchResult, World } from "../types";
+import type { Club, World } from "../types";
+
+export interface QuickResult {
+  homeId: string;
+  awayId: string;
+  homeGoals: number;
+  awayGoals: number;
+}
 
 /**
- * Modelo rápido de resultado: usado para todas as partidas fora das
- * competições do jogador. Gols seguem Poisson com média ajustada pela
+ * Modelo-base de gols: a força dos titulares e o mando de campo definem a
+ * média de gols de cada lado. O motor de partida (match/engine.ts) parte
+ * destas médias e aplica tática, cansaço, expulsões e placar. Gols seguem Poisson com média ajustada pela
  * diferença de força e pelo mando de campo.
  *
  * Calibração-alvo (futebol brasileiro): ~2,3–2,6 gols por jogo,
@@ -39,7 +47,7 @@ export function simulateQuickMatch(
   awayId: string,
   homeStrength: number,
   awayStrength: number,
-): MatchResult {
+): QuickResult {
   const xg = expectedGoals(homeStrength, awayStrength);
   return {
     homeId,

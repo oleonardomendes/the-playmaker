@@ -1,5 +1,7 @@
-import type { SaveGame } from "@/engine/types";
-import { generateWorld } from "@/engine/world/generate";
+import { buildSeason } from "@/engine/competitions/build";
+import { defaultTactic } from "@/engine/match/tactics";
+import type { Club, Player, SaveGame, World } from "@/engine/types";
+import { emptySeason, generateWorld } from "@/engine/world/generate";
 
 /**
  * Versão atual do esquema do save. Sempre que o formato do mundo mudar de um
@@ -7,7 +9,7 @@ import { generateWorld } from "@/engine/world/generate";
  * correspondente abaixo — assim carreiras em andamento sobrevivem às
  * atualizações do jogo.
  */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 type Migration = (save: Record<string, unknown>) => Record<string, unknown>;
 
@@ -19,6 +21,22 @@ const migrations: Record<number, Migration> = {
     const oldWorld = save.world as { seed?: unknown } | undefined;
     const seed = typeof oldWorld?.seed === "number" ? oldWorld.seed : 1;
     return { ...save, schemaVersion: 2, world: generateWorld(seed) };
+  },
+  // v3 (fase 2): partidas, táticas e calendário. Mantém clubes e jogadores
+  // (inclusive edições de pack) e monta a temporada.
+  2: (save) => {
+    const world = save.world as World;
+    for (const p of Object.values(world.players) as Partial<Player>[]) {
+      p.condition ??= 100;
+      p.season ??= emptySeason();
+    }
+    for (const c of Object.values(world.clubs) as Club[]) {
+      c.tactic ??= defaultTactic(c.id);
+    }
+    world.date ??= `${world.season}-01-10`;
+    world.history ??= [];
+    buildSeason(world);
+    return { ...save, schemaVersion: 3, world };
   },
 };
 

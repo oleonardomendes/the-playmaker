@@ -101,3 +101,20 @@ export const IconUpload = (p: IconProps) => (
     <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 19.5h14" />
   </Base>
 );
+
+export const IconPitch = (p: IconProps) => (
+  <Base {...p}>
+    <rect x="4" y="3.5" width="16" height="17" rx="1.5" />
+    <path d="M4 12h16" />
+    <circle cx="12" cy="12" r="2.6" />
+    <path d="M9 3.5v3h6v-3M9 20.5v-3h6v3" />
+  </Base>
+);
+
+export const IconCalendar = (p: IconProps) => (
+  <Base {...p}>
+    <rect x="4" y="5" width="16" height="15" rx="2" />
+    <path d="M4 9.5h16M8.5 3v4M15.5 3v4" />
+    <path d="M8 13h2M12 13h2M8 16.5h2" />
+  </Base>
+);
