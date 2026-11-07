@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+:root {
+  --pitch: #0f2a1d;
+  --pitch-2: #163a29;
+  --chalk: #e9f2ea;
+  --chalk-dim: #a9bdae;
+  --line: rgba(233, 242, 234, 0.14);
+  --gold: #f2c94c;
+}
+
+@theme inline {
+  --color-pitch: var(--pitch);
+  --color-pitch-2: var(--pitch-2);
+  --color-chalk: var(--chalk);
+  --color-chalk-dim: var(--chalk-dim);
+  --color-line: var(--line);
+  --color-gold: var(--gold);
+  --font-display: "Barlow Condensed", system-ui, sans-serif;
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+}
+
+body {
+  background: var(--pitch);
+  color: var(--chalk);
+  font-family: "Inter Variable", system-ui, sans-serif;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
