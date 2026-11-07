@@ -1,4 +1,4 @@
-import { Rng } from "../rng";
+import type { Rng } from "../rng";
 import type { Club, MatchResult, World } from "../types";
 
 /**
@@ -15,6 +15,7 @@ const BASE_AWAY_GOALS = 1.02;
 /** Quanto a diferença de força (em pontos de overall) muda a média de gols. */
 const STRENGTH_SCALE = 14;
 
+/** Força do time: média dos 11 melhores do elenco. */
 export function teamStrength(world: World, club: Club): number {
   const overalls = club.playerIds
     .map((id) => world.players[id]?.overall ?? 0)
@@ -46,19 +47,4 @@ export function simulateQuickMatch(
     homeGoals: rng.poisson(xg.home),
     awayGoals: rng.poisson(xg.away),
   };
-}
-
-/** Rodada de teste: emparelha os clubes em sequência e simula todos os jogos. */
-export function simulateTestRound(world: World): { world: World; results: MatchResult[] } {
-  const rng = new Rng(world.rng);
-  const ids = Object.keys(world.clubs);
-  const results: MatchResult[] = [];
-  for (let i = 0; i + 1 < ids.length; i += 2) {
-    const home = world.clubs[ids[i]];
-    const away = world.clubs[ids[i + 1]];
-    results.push(
-      simulateQuickMatch(rng, home.id, away.id, teamStrength(world, home), teamStrength(world, away)),
-    );
-  }
-  return { world: { ...world, rng: rng.state() }, results };
 }

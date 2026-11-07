@@ -16,12 +16,16 @@ O design completo do jogo está no documento de design (link com o Léo).
 ```
 src/
   app/               telas, manifest do PWA e rota /api/ia
-  components/        componentes de interface
+  components/
+    game/            estado do jogo (GameProvider), navegação e o layout do app
+    views/           telas: início, clubes, torneios, jogadores, banco, ficha do jogador
+    ui/              peças visuais (escudo gerado, selos de divisão, ícones)
   engine/            motor do jogo (sem DOM; testável em Node)
     rng.ts           gerador aleatório determinístico — toda aleatoriedade passa por ele
     types.ts         modelo de dados
-    world/           geração do mundo
+    world/           geração do mundo (geografia, nomes, clubes, jogadores, rivalidades)
     sim/             simulação de partidas
+    pack.ts          packs: exportar/importar edições do banco (nomes reais ficam por conta da comunidade)
     engine.worker.ts Web Worker que expõe o motor para a interface
     protocol.ts      contrato de mensagens interface <-> motor
   lib/
@@ -46,7 +50,7 @@ npm run lint
 | Fase | Entrega |
 | --- | --- |
 | **0. Setup** ✅ | PWA, motor em Web Worker, save local, rota de IA |
-| 1. Mundo | ~300 clubes, ~10 mil jogadores, nomes e apelidos, rivalidades |
+| **1. Mundo** ✅ | 302 clubes BR + 60 sul-americanos, ~9 mil jogadores, rivalidades, packs, interface paisagem |
 | 2. Partida, táticas e calendário | motor em texto, todas as competições |
 | 3. Elenco, treino e trajetórias | perfis de carreira, lesões, base, olheiros |
 | 4. Finanças e política | dívida, SAF, votações, eleições |
@@ -55,6 +59,12 @@ npm run lint
 | 7. IA generativa | presidente, jogador, empresário, imprensa |
 | 8. Jornada e interface | tutorial, central de mensagens, conquistas |
 | 9. Balanceamento | 10+ temporadas simuladas, testes com amigos |
+
+## Interface
+
+- **Paisagem:** o jogo é horizontal. No Android instalado a orientação fica travada pelo manifest; no iPhone (que não permite travar) aparece o aviso "Gire o celular".
+- Layout pensado para telas baixas (~375–430 px de altura): menu lateral, listas à esquerda e detalhes à direita.
+- O botão/gesto "voltar" do celular volta para a tela anterior do jogo.
 
 ## Regras do motor
 

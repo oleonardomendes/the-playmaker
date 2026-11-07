@@ -1,19 +1,19 @@
 /// <reference lib="webworker" />
+import { applyPack, parsePack } from "./pack";
 import type { EngineMessage, EngineReply } from "./protocol";
 import { generateWorld } from "./world/generate";
-import { simulateTestRound } from "./sim/quickMatch";
 
 /**
  * Web Worker do motor: toda simulação pesada roda aqui, fora da thread da
- * interface, para o celular não travar ao avançar rodadas.
+ * interface, para o celular não travar.
  */
 
 function handle(msg: EngineMessage): unknown {
   switch (msg.type) {
     case "newWorld":
       return generateWorld(msg.seed);
-    case "simulateTestRound":
-      return simulateTestRound(msg.world);
+    case "applyPack":
+      return applyPack(msg.world, parsePack(msg.pack));
   }
 }
 

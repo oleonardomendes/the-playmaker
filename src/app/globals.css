@@ -1,29 +1,109 @@
 @import "tailwindcss";
 
+/*
+ * Paleta "gramado à noite": fundo verde-escuro, texto cor de cal,
+ * amarelo-cartão só para ações principais. As cores fortes do jogo
+ * ficam com os clubes (escudos e faixas).
+ */
 :root {
-  --pitch: #0f2a1d;
-  --pitch-2: #163a29;
-  --chalk: #e9f2ea;
-  --chalk-dim: #a9bdae;
-  --line: rgba(233, 242, 234, 0.14);
-  --gold: #f2c94c;
+  --pitch: #0d2318;
+  --pitch-2: #143224;
+  --pitch-3: #1d4331;
+  --chalk: #eaf1e6;
+  --chalk-dim: #a3b8a9;
+  --chalk-faint: #6f8a77;
+  --line: rgba(234, 241, 230, 0.12);
+  --gold: #f5c542;
+  --red: #e5484d;
 }
 
 @theme inline {
   --color-pitch: var(--pitch);
   --color-pitch-2: var(--pitch-2);
+  --color-pitch-3: var(--pitch-3);
   --color-chalk: var(--chalk);
   --color-chalk-dim: var(--chalk-dim);
+  --color-chalk-faint: var(--chalk-faint);
   --color-line: var(--line);
   --color-gold: var(--gold);
+  --color-red: var(--red);
   --font-display: "Barlow Condensed", system-ui, sans-serif;
   --font-sans: "Inter Variable", system-ui, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
 }
 
 body {
   background: var(--pitch);
   color: var(--chalk);
   font-family: "Inter Variable", system-ui, sans-serif;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
-    env(safe-area-inset-left);
+  font-size: 14px;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Rolagem discreta dentro dos painéis. */
+.scroll-pane {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--pitch-3) transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+select,
+input {
+  color-scheme: dark;
+}
+
+/* O jogo é horizontal: no celular em pé, pede para girar. */
+.rotate-hint {
+  display: none;
+}
+@media (orientation: portrait) and (max-width: 900px) {
+  .rotate-hint {
+    display: flex;
+  }
+  .app-frame {
+    display: none;
+  }
+}
+
+@keyframes tilt {
+  0%,
+  30% {
+    transform: rotate(0deg);
+  }
+  60%,
+  100% {
+    transform: rotate(-90deg);
+  }
+}
+.tilt {
+  animation: tilt 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+}
+.sheet-in {
+  animation: sheet-in 160ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt,
+  .sheet-in {
+    animation: none;
+  }
 }

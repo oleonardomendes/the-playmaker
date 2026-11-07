@@ -1,4 +1,5 @@
-import type { MatchResult, World } from "./types";
+import type { PackReport } from "./pack";
+import type { World } from "./types";
 
 /**
  * Contrato de mensagens entre a interface e o motor (que roda num Web Worker).
@@ -7,11 +8,11 @@ import type { MatchResult, World } from "./types";
 
 export type EngineRequest =
   | { type: "newWorld"; seed: number }
-  | { type: "simulateTestRound"; world: World };
+  | { type: "applyPack"; world: World; pack: unknown };
 
 export type EngineResponseMap = {
   newWorld: World;
-  simulateTestRound: { world: World; results: MatchResult[] };
+  applyPack: { world: World; report: PackReport };
 };
 
 export type EngineMessage = EngineRequest & { id: number };

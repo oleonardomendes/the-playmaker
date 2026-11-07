@@ -1,4 +1,5 @@
 import type { SaveGame } from "@/engine/types";
+import { generateWorld } from "@/engine/world/generate";
 
 /**
  * Versão atual do esquema do save. Sempre que o formato do mundo mudar de um
@@ -6,14 +7,19 @@ import type { SaveGame } from "@/engine/types";
  * correspondente abaixo — assim carreiras em andamento sobrevivem às
  * atualizações do jogo.
  */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 type Migration = (save: Record<string, unknown>) => Record<string, unknown>;
 
 /** migrations[n] converte um save da versão n para a versão n + 1. */
 const migrations: Record<number, Migration> = {
-  // Exemplo para o futuro:
-  // 1: (save) => ({ ...save, schemaVersion: 2, world: { ...addNewField(save.world) } }),
+  // v1 (fase 0) tinha um mundo de teste com 20 clubes e nenhuma carreira.
+  // Na v2 o mundo passa a ser completo: regeramos a partir da mesma semente.
+  1: (save) => {
+    const oldWorld = save.world as { seed?: unknown } | undefined;
+    const seed = typeof oldWorld?.seed === "number" ? oldWorld.seed : 1;
+    return { ...save, schemaVersion: 2, world: generateWorld(seed) };
+  },
 };
 
 export class SaveTooNewError extends Error {

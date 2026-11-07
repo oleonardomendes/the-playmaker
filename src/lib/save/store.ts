@@ -6,7 +6,7 @@ import { migrateSave, SCHEMA_VERSION } from "./migrations";
 
 /**
  * Saves locais no aparelho (IndexedDB). A cópia na nuvem (Supabase) entra
- * como backup na sequência; o aparelho continua sendo a fonte principal
+ * como backup mais adiante; o aparelho continua sendo a fonte principal
  * para o jogo funcionar mesmo com internet ruim.
  */
 
@@ -30,6 +30,15 @@ function db() {
   return dbPromise;
 }
 
+/** Migra saves antigos e grava a versão migrada, para não migrar de novo. */
+async function upgrade(raw: SaveGame | undefined): Promise<SaveGame | undefined> {
+  if (!raw) return undefined;
+  if (raw.schemaVersion === SCHEMA_VERSION) return raw;
+  const migrated = migrateSave(raw as unknown as Record<string, unknown>);
+  await (await db()).put("saves", migrated);
+  return migrated;
+}
+
 export async function createSave(name: string, world: World): Promise<SaveGame> {
   const now = new Date().toISOString();
   const save: SaveGame = {
@@ -51,14 +60,12 @@ export async function updateSave(save: SaveGame, world: World): Promise<SaveGame
 }
 
 export async function loadSave(id: string): Promise<SaveGame | undefined> {
-  const raw = await (await db()).get("saves", id);
-  return raw ? migrateSave(raw as unknown as Record<string, unknown>) : undefined;
+  return upgrade(await (await db()).get("saves", id));
 }
 
 export async function latestSave(): Promise<SaveGame | undefined> {
   const all = await (await db()).getAllFromIndex("saves", "updatedAt");
-  const raw = all.at(-1);
-  return raw ? migrateSave(raw as unknown as Record<string, unknown>) : undefined;
+  return upgrade(all.at(-1));
 }
 
 export async function deleteSave(id: string): Promise<void> {
