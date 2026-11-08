@@ -54,7 +54,7 @@ export function DatabaseView() {
         <button
           onClick={() => input.current?.click()}
           disabled={busy}
-          className="flex items-center justify-center gap-2 rounded-lg bg-gold px-4 py-2.5 font-display text-lg font-bold text-pitch disabled:opacity-50"
+          className="flex items-center justify-center gap-2 btn-primary px-4 py-2.5 text-lg"
         >
           <IconUpload className="text-xl" /> {busy ? "Aplicando pack…" : "Importar pack"}
         </button>

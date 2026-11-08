@@ -87,7 +87,7 @@ export function ChooseClubView() {
             <button
               onClick={() => chooseClub(club.id)}
               disabled={busy}
-              className="rounded-lg bg-gold px-6 py-3 font-display text-xl font-bold text-pitch disabled:opacity-50"
+              className="btn-primary px-6 py-3 text-xl"
             >
               Comandar o {club.shortName}
             </button>

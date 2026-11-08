@@ -5,6 +5,7 @@ import { useGame, useWorld } from "@/components/game/GameProvider";
 import { useNavigation } from "@/components/game/navigation";
 import { Crest } from "@/components/ui/Crest";
 import { EmptyState } from "@/components/ui/bits";
+import { Face, PosTag, conditionColor } from "@/components/ui/player";
 import { MatchSim } from "@/engine/match/engine";
 import { MENTALITIES, MENTALITY_NAMES, MENTALITY_SHORT } from "@/engine/match/tactics";
 import { matchSetup } from "@/engine/season/season";
@@ -26,23 +27,34 @@ function MatchHeader({ world, fixture, score, center }: { world: World; fixture:
   const home = world.clubs[fixture.home];
   const away = world.clubs[fixture.away];
   const userId = world.user?.clubId;
-  const name = (id: string) => (
-    <span className={`truncate font-display text-xl font-bold ${id === userId ? "text-gold" : ""}`}>{world.clubs[id].name}</span>
+  const side = (c: typeof home, right: boolean) => (
+    <div className={`flex min-w-0 flex-1 items-center gap-2.5 ${right ? "" : "flex-row-reverse"}`}>
+      <span className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]">
+        <Crest club={c} size={38} />
+      </span>
+      <span className={`min-w-0 ${right ? "text-left" : "text-right"}`}>
+        <span className={`block truncate font-display text-[20px] font-bold leading-none tracking-wide ${c.id === userId ? "text-gold" : ""}`}>{c.shortName.toUpperCase()}</span>
+        <span className="block truncate text-[11px] text-chalk-faint">{c.name}</span>
+      </span>
+    </div>
   );
   return (
-    <div className="flex shrink-0 items-center gap-3 border-b border-line px-4 py-2">
-      <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-        {name(home.id)}
-        <Crest club={home} size={28} />
+    <div className="relative flex shrink-0 items-center gap-3 overflow-hidden border-b border-line px-4 py-2">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-50"
+        style={{
+          background: `linear-gradient(90deg, color-mix(in srgb, ${home.colors[0]} 35%, transparent), transparent 35%, transparent 65%, color-mix(in srgb, ${away.colors[0]} 35%, transparent))`,
+        }}
+      />
+      {side(home, false)}
+      <div className="relative flex shrink-0 flex-col items-center">
+        <span className="rounded-xl border border-line-strong bg-pitch/80 px-4 py-1 font-display text-[30px] font-bold leading-none tabular-nums shadow-[0_6px_18px_rgba(0,0,0,0.5)]">
+          {score ? `${score[0]} – ${score[1]}` : "×"}
+        </span>
+        {center && <span className="mt-1 text-[11px] font-semibold text-chalk-dim">{center}</span>}
       </div>
-      <div className="flex w-28 shrink-0 flex-col items-center">
-        <span className="font-display text-3xl font-bold leading-none tabular-nums">{score ? `${score[0]} – ${score[1]}` : "×"}</span>
-        {center && <span className="mt-0.5 text-xs text-chalk-dim">{center}</span>}
-      </div>
-      <div className="flex min-w-0 flex-1 items-center gap-2">
-        <Crest club={away} size={28} />
-        {name(away.id)}
-      </div>
+      {side(away, true)}
     </div>
   );
 }
@@ -68,13 +80,13 @@ function PreMatch({ world, fixture }: { world: World; fixture: Fixture }) {
             <span className="ml-2 text-sm font-normal text-chalk-dim">{agg ?? (fixture.neutral ? "Campo neutro" : world.clubs[fixture.home].stadium.name)}</span>
           </p>
         </div>
-        <button onClick={simulate} disabled={busy} className="rounded-lg bg-pitch-3 px-4 py-2 font-display text-lg font-bold hover:bg-pitch-2 disabled:opacity-50">
+        <button onClick={simulate} disabled={busy} className="btn-ghost px-4 py-2 font-display text-lg font-bold disabled:opacity-50">
           {busy ? "Simulando…" : "Simular"}
         </button>
         <button
           onClick={() => navigate({ view: "partida", fixtureId: fixture.id, mode: "live" }, { replace: true })}
           disabled={busy}
-          className="rounded-lg bg-gold px-5 py-2 font-display text-lg font-bold text-pitch disabled:opacity-50"
+          className="btn-primary px-5 py-2 text-lg"
         >
           Jogar ao vivo
         </button>
@@ -187,7 +199,7 @@ function LiveMatch({ world, fixture }: { world: World; fixture: Fixture }) {
         <section aria-label="Narração" aria-live="polite" className="scroll-pane min-w-0 flex-1 px-4 py-2">
           <ul className="flex flex-col gap-1">
             {lines.map((l, i) => (
-              <li key={lines.length - i} className={`flex gap-3 rounded-md px-2 py-1 text-sm ${l.kind === "gol" ? "bg-gold/15 font-semibold text-gold" : l.kind === "vermelho" ? "bg-red/15" : ""}`}>
+              <li key={lines.length - i} className={`flex gap-3 rounded-md px-2 py-1 text-sm ${l.kind === "gol" ? "border border-gold/40 bg-gold/15 py-1.5 font-semibold text-gold shadow-[0_0_18px_-6px_var(--gold)]" : l.kind === "vermelho" ? "bg-red/15" : ""}`}>
                 <span className="w-10 shrink-0 text-right font-display font-semibold tabular-nums text-chalk-dim">{l.minute}</span>
                 <span className={l.kind === "chance" || l.kind === "info" ? "text-chalk-dim" : ""}>
                   {l.kind === "cartao" && <span aria-hidden className="mr-1.5 inline-block h-3 w-2 rounded-[2px] bg-gold align-[-1px]" />}
@@ -209,7 +221,7 @@ function LiveMatch({ world, fixture }: { world: World; fixture: Fixture }) {
                   onClick={() => setMentality(m)}
                   disabled={snap.done}
                   title={MENTALITY_NAMES[m]}
-                  className={`rounded-md py-1 text-[11px] font-semibold ${mine.mentality === m ? "bg-chalk text-pitch" : "bg-pitch-2 text-chalk-dim"}`}
+                  className={`rounded-md py-1 text-[11px] font-semibold ${mine.mentality === m ? "bg-gold text-pitch" : "border border-line bg-pitch-2 text-chalk-dim"}`}
                 >
                   {MENTALITY_SHORT[m]}
                 </button>
@@ -229,14 +241,17 @@ function LiveMatch({ world, fixture }: { world: World; fixture: Fixture }) {
                 <li key={id}>
                   <button
                     onClick={() => (subOut ? substitute(id) : !snap.done && mine.subsLeft > 0 && setSubOut(id))}
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm hover:bg-pitch-2"
+                    className="flex w-full items-center gap-2 rounded-lg px-1.5 py-[3px] text-left text-[13px] hover:bg-white/5"
                   >
-                    <span className="w-8 shrink-0 font-display text-[13px] font-semibold text-chalk-dim">{live?.slot ?? p.position}</span>
+                    <Face player={p} size={24} shirt={world.clubs[clubs[userSide]].colors[0]} season={world.season} />
+                    <PosTag pos={live?.slot ?? p.position} />
                     <span className="min-w-0 flex-1 truncate">
                       {p.knownAs}
                       {live?.yellow ? <span aria-label="amarelo" className="ml-1 inline-block h-2.5 w-1.5 rounded-[1px] bg-gold" /> : null}
                     </span>
-                    <span className={`w-9 text-right text-xs tabular-nums ${cond < 70 ? "text-red" : "text-chalk-dim"}`}>{Math.round(cond)}%</span>
+                    <span className="w-9 text-right text-[11px] font-semibold tabular-nums" style={{ color: conditionColor(cond) }}>
+                      {Math.round(cond)}%
+                    </span>
                   </button>
                 </li>
               );
@@ -252,23 +267,23 @@ function LiveMatch({ world, fixture }: { world: World; fixture: Fixture }) {
 
       <div className="flex shrink-0 items-center gap-2 border-t border-line px-3 py-2">
         {snap.done ? (
-          <button onClick={finish} disabled={busy} className="ml-auto rounded-lg bg-gold px-5 py-2 font-display text-lg font-bold text-pitch disabled:opacity-50">
+          <button onClick={finish} disabled={busy} className="ml-auto btn-primary px-5 py-2 text-lg">
             {busy ? "Salvando…" : "Ver súmula"}
           </button>
         ) : (
           <>
             {halfTime ? (
-              <button onClick={() => setHalfTime(false)} className="rounded-lg bg-gold px-4 py-1.5 font-display text-lg font-bold text-pitch">
+              <button onClick={() => setHalfTime(false)} className="btn-primary px-4 py-1.5 text-lg">
                 Começar o 2º tempo
               </button>
             ) : (
-              <button onClick={() => setPaused((p) => !p)} className="rounded-lg bg-pitch-3 px-4 py-1.5 font-display text-lg font-bold">
+              <button onClick={() => setPaused((p) => !p)} className="btn-ghost px-4 py-1.5 font-display text-lg font-bold">
                 {paused ? "Continuar" : "Pausar"}
               </button>
             )}
             <div className="flex gap-1" role="group" aria-label="Velocidade">
               {SPEEDS.map((s, i) => (
-                <button key={s.label} onClick={() => setSpeed(i)} className={`rounded-md px-2.5 py-1.5 text-sm font-semibold ${speed === i ? "bg-chalk text-pitch" : "bg-pitch-2 text-chalk-dim"}`}>
+                <button key={s.label} onClick={() => setSpeed(i)} className={`rounded-md px-2.5 py-1.5 text-sm font-semibold ${speed === i ? "bg-chalk text-pitch" : "border border-line bg-pitch-2 text-chalk-dim"}`}>
                   {s.label}
                 </button>
               ))}
@@ -379,7 +394,7 @@ function MatchReport({ world, fixture }: { world: World; fixture: Fixture }) {
         )}
       </div>
       <div className="flex shrink-0 justify-end border-t border-line px-3 py-2">
-        <button onClick={() => navigate({ view: "inicio" })} className="rounded-lg bg-gold px-5 py-2 font-display text-lg font-bold text-pitch">
+        <button onClick={() => navigate({ view: "inicio" })} className="btn-primary px-5 py-2 text-lg">
           Continuar
         </button>
       </div>

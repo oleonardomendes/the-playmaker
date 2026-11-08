@@ -1,32 +1,52 @@
 @import "tailwindcss";
 
 /*
- * Paleta "gramado à noite": fundo verde-escuro, texto cor de cal,
- * amarelo-cartão só para ações principais. As cores fortes do jogo
- * ficam com os clubes (escudos e faixas).
+ * Paleta "estádio à noite": fundo azul-noite com luz de refletor nos cantos,
+ * painéis um tom acima com borda fina, dourado só para a ação principal.
+ * Verde fica no gramado e no que é bom; vermelho só no que é ruim.
+ * (Os nomes pitch/chalk ficaram da paleta antiga: pitch = fundos, chalk = texto.)
  */
 :root {
-  --pitch: #0d2318;
-  --pitch-2: #143224;
-  --pitch-3: #1d4331;
-  --chalk: #eaf1e6;
-  --chalk-dim: #a3b8a9;
-  --chalk-faint: #6f8a77;
-  --line: rgba(234, 241, 230, 0.12);
-  --gold: #f5c542;
-  --red: #e5484d;
+  --pitch: #070b16;
+  --pitch-2: #111a2c;
+  --pitch-3: #1c2740;
+  --pitch-4: #27344f;
+  --chalk: #eef2fa;
+  --chalk-dim: #97a3bd;
+  --chalk-faint: #5f6b86;
+  --line: rgba(160, 180, 230, 0.11);
+  --line-strong: rgba(160, 180, 230, 0.22);
+  --gold: #f4c24d;
+  --gold-deep: #d99a1e;
+  --good: #3ad17f;
+  --warn: #f59f3a;
+  --red: #f0525a;
+  --sky: #4c9dff;
+  /* Cores por setor do campo. */
+  --pos-gol: #f59f3a;
+  --pos-def: #4c9dff;
+  --pos-mei: #2fd3a0;
+  --pos-ata: #ff5f7a;
+  --grass-a: #1c6b34;
+  --grass-b: #217a3b;
 }
 
 @theme inline {
   --color-pitch: var(--pitch);
   --color-pitch-2: var(--pitch-2);
   --color-pitch-3: var(--pitch-3);
+  --color-pitch-4: var(--pitch-4);
   --color-chalk: var(--chalk);
   --color-chalk-dim: var(--chalk-dim);
   --color-chalk-faint: var(--chalk-faint);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-good: var(--good);
+  --color-warn: var(--warn);
   --color-red: var(--red);
+  --color-sky: var(--sky);
   --font-display: "Barlow Condensed", system-ui, sans-serif;
   --font-sans: "Inter Variable", system-ui, sans-serif;
 }
@@ -38,12 +58,55 @@ body {
 }
 
 body {
-  background: var(--pitch);
+  background:
+    radial-gradient(60vw 50vh at 100% 0%, rgba(98, 70, 220, 0.16), transparent 70%),
+    radial-gradient(50vw 60vh at 0% 100%, rgba(40, 140, 255, 0.10), transparent 70%),
+    var(--pitch);
+  background-attachment: fixed;
   color: var(--chalk);
   font-family: "Inter Variable", system-ui, sans-serif;
   font-size: 14px;
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Painel: um tom acima do fundo, borda fina e brilho de cima. */
+.panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 40%), var(--pitch-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+}
+.panel-hover:hover {
+  border-color: var(--line-strong);
+}
+
+/* Botão da ação principal: dourado com relevo. */
+.btn-primary {
+  background: linear-gradient(180deg, #ffd56b, var(--gold) 45%, var(--gold-deep));
+  color: #1a1203;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 6px 18px -6px rgba(244, 194, 77, 0.55);
+}
+.btn-primary:disabled {
+  opacity: 0.55;
+}
+.btn-ghost {
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Gramado listrado com luz de refletor. */
+.grass {
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(255, 255, 255, 0.12), transparent 70%),
+    repeating-linear-gradient(180deg, var(--grass-a) 0 10%, var(--grass-b) 10% 20%);
 }
 
 /* Rolagem discreta dentro dos painéis. */

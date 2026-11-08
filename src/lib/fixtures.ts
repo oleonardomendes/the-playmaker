@@ -54,7 +54,7 @@ export function aggregateNote(world: World, fixture: Fixture): string | null {
 }
 
 export const RESULT_STYLE: Record<"V" | "E" | "D", string> = {
-  V: "bg-[#3fa35b] text-pitch",
+  V: "bg-good text-pitch",
   E: "bg-chalk-faint text-pitch",
   D: "bg-red text-white",
 };
